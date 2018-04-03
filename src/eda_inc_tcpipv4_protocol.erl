@@ -1,4 +1,4 @@
--module(itcpipv4_protocol).
+-module(eda_inc_tcpipv4_protocol).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).

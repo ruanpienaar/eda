@@ -1,4 +1,4 @@
--module(eda_sup).
+-module(eda_out_sup).
 
 -behaviour(supervisor).
 
@@ -20,16 +20,25 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    ChildSpecs = [
-        % First out
-        ?CHILD(eda_out_sup, supervisor),
-        % Then in
-        ?CHILD(eda_inc_sup, supervisor)
-    ],
+
+    % TODO
+    % - build screening per item ( check required fields present )
+
+    {ok, OutProtos} = application:get_env(eda, outgoing_data_protocols),
+    ChildSpecs =
+        lists:foldl(fun({_Ref, ProtoOpts}, A) ->
+            case proplists:get_value(type, ProtoOpts) of
+                X ->
+                    io:format("outgoing ~p unsupported protocol option.~n", [X]),
+                    A
+            end
+        end, [], OutProtos),
+
+    % {ok, { {one_for_one, 5, 10}, Children} }.
     SupFlags = #{
         strategy => one_for_one, % optional
-        intensity => 5,          % optional
-        period => 1              % optional
+        intensity => 50,         % optional
+        period => 5              % optional
     },
     {ok, {SupFlags, ChildSpecs}}.
 
