@@ -2,16 +2,22 @@
 
 -behaviour(supervisor).
 
-%% API
 -export([start_link/0]).
 
-%% Supervisor callbacks
 -export([init/1]).
 
-%% Helper macro for declaring children of supervisor
--define(CHILD(I, Type), {I, {I, start_link, []}, permanent, 5000, Type, [I]}).
+-define(CHILD(I, Type),
+    #{
+        id => I,
+        start => {I, start_link, []},
+        restart => permanent,
+        shutdown => 5000,
+        type => worker,
+        modules => [I]
+    }
+).
 
--include("eda.hrl").
+% -include("eda.hrl").
 
 %% ===================================================================
 %% API functions
@@ -25,5 +31,33 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    {ok, { {one_for_one, 5, 10}, []} }.
+
+    % TODO
+    % - build screening per item ( check required fields present )
+
+    {ok, IncProtos} = application:get_env(eda, incomming_data_protocols),
+    ChildSpecs =
+        lists:foldl(fun({Ref, ProtoOpts}, A) ->
+            case proplists:get_value(type, ProtoOpts) of
+                tcpipv4 ->
+                    NumAcceptrs = proplists:get_value(num_acceptors, ProtoOpts),
+                    Port = proplists:get_value(port, ProtoOpts),
+                    ListenerSpec = ranch:child_spec(
+                        Ref, NumAcceptrs, ranch_tcp,
+                        [{port, Port}], itcpipv4_protocol, ProtoOpts
+                    ),
+                    [ListenerSpec|A];
+                X ->
+                    io:format("~p unsupported protocol option.~n", [X]),
+                    A
+            end
+        end, [], IncProtos),
+
+    % {ok, { {one_for_one, 5, 10}, Children} }.
+    SupFlags = #{
+        strategy => one_for_one, % optional
+        intensity => 50,         % optional
+        period => 5              % optional
+    },
+    {ok, {SupFlags, ChildSpecs}}.
 

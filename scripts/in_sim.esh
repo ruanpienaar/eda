@@ -1,0 +1,42 @@
+#!/usr/bin/env escript
+%% -*- erlang -*-
+%%! -smp enable -sname in_sim -setcookie in_sim -mnesia debug verbose
+main([Host, Port]) ->
+	connect_loop_try(Host, Port);
+main(_) ->
+	usage().
+
+connect_loop_try(Host, Port) ->
+	connect_loop_try(Host, Port, _RetryCount = 60, _MsgCount = 5).
+
+connect_loop_try(_Host, _Port, 0, _) ->
+	{error,econnrefused};
+connect_loop_try(Host, Port, Count, MsgCount) when is_list(Host), is_list(Port) ->
+	timer:sleep(500),
+	case gen_tcp:connect(Host, list_to_integer(Port), [binary, {packet, 2}]) of
+		{ok, PortPid} ->
+			send(Host, Port, PortPid, MsgCount);
+		{error, Reason} ->
+			io:format("...Connection failed:~p...\n",[Reason]),
+			connect_loop_try(Host, Port, Count-1, MsgCount)
+	end.
+
+send(_Host, _Port, PortPid, 0) ->
+	ok = gen_tcp:close(PortPid);
+send(Host, Port, PortPid, MsgCount) ->
+	timer:sleep(100),
+	{Mega, Sec, Micro} = erlang:timestamp(),
+	case gen_tcp:send(PortPid, list_to_binary(integer_to_list((Mega*1000000 + Sec)*1000 + round(Micro/1000)) ++ "\n") ) of
+		ok ->
+			io:format("."),
+			send(Host, Port, PortPid, MsgCount - 1);
+		{error,closed} ->
+			io:format("...send got error ~p\n",[closed]),
+			connect_loop_try(Host, Port);
+		{error, Reason} ->
+			io:format("...send got error ~p\n",[Reason]),
+			send(Host, Port, PortPid, MsgCount)
+	end.
+
+usage() ->
+	io:format("./in_sim.esh <CONNECT HOST> <CONNECT PORT>\n").
