@@ -28,6 +28,10 @@ init([]) ->
     ChildSpecs =
         lists:foldl(fun({_Ref, ProtoOpts}, A) ->
             case proplists:get_value(type, ProtoOpts) of
+                tcpipv4 ->
+                    % [?CHILD(eda_out_tcpipv4_protocol, worker)|A];
+                    % TODO: we need to create it per ID, so that it's unique...
+                    A;
                 X ->
                     io:format("outgoing ~p unsupported protocol option.~n", [X]),
                     A

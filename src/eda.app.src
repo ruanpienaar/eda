@@ -5,8 +5,14 @@
   {registered, []},
   {applications, [
                   kernel,
-                  stdlib
+                  stdlib,
+                  crypto,
+                  public_key,
+                  ssl,
+                  hackney,
+                  ranch
                  ]},
   {mod, { eda_app, []}},
   {env, []}
- ]}.
+ ]
+}.
