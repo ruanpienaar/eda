@@ -5,6 +5,8 @@
     id/2
 ]).
 
+%% TODO: shall we rename this module to eda_inc_udp? Since ipv6 is in Opts?
+
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
@@ -19,7 +21,7 @@ start_link(Args) ->
     %io:format("Args ~p\n\n\n", [Args]),
     OpenOpts = proplists:get_value(open_opts, Args),
     {ip, Address} = proplists:lookup(ip, OpenOpts),
-    {port,Port} = proplists:lookup(port,Args),
+    {port, Port} = proplists:lookup(port,Args),
     gen_server:start_link({local, name(Address, Port)}, ?MODULE, [Args], []).
 
 id(Address, Port) ->
@@ -28,18 +30,16 @@ id(Address, Port) ->
 %% ------------------------------------------------------------------
 
 init([Args]) ->
-    % dbg:tracer(),
-    % dbg:p(all, call),
-    % dbg:tpl(gen_udp, cx),
     {port,Port} = proplists:lookup(port,Args),
     {open_opts,OpenOpts} = proplists:lookup(open_opts,Args),
     {cb_mod, CbMod} = proplists:lookup(cb_mod, Args),
     {recv_len, RcvLen} = proplists:lookup(recv_len, Args),
-    {ok, Socket} = gen_udp:open(Port, OpenOpts),
-    io:format("UDP OPEN Socket ~p\n", [Socket]),
+    {ok, ServerSocket} = gen_udp:open(Port, OpenOpts),
+    io:format("UDP OPEN ServerSocket ~p\n", [ServerSocket]),
     Active =
-        case proplists:get_value(active, OpenOpts, {active, false}) of
+        case proplists:get_value(active, OpenOpts, false) of
             false ->
+                % TODO: change recv messages to timeout, or tightloop?
                 self() ! recv,
                 false;
             true ->
@@ -50,7 +50,7 @@ init([Args]) ->
                 N
         end,
     {ok, #?STATE{
-        socket = Socket,
+        socket = ServerSocket,
         recv_len = RcvLen,
         cb_mod = CbMod,
         active = Active
@@ -64,45 +64,47 @@ handle_cast(Msg, State) ->
     io:format("Unhandled Msg ~p ~n", [Msg]),
     {noreply, State}.
 
-handle_info(recv, #?STATE{ socket = Socket,
+% Active == false
+handle_info(recv, #?STATE{ socket = ServerSocket,
                            recv_len = RecvLen,
                            cb_mod = CbMod,
                            active = Active = false } = State) ->
-    case gen_udp:recv(Socket, RecvLen) of
+    case gen_udp:recv(ServerSocket, RecvLen) of
         {ok, {Address, Port, Packet}} ->
-            ok = CbMod:recv_data({Address, Port, Packet, Active}),
-            % TODO: change to timeout...
-            %       or tight loop
-            self() ! recv,
-            {noreply, State};
+            case CbMod:recv_data({Address, Port, Packet, Active}) of
+                ok ->
+                    self() ! recv,
+                    {noreply, State};
+                [{active, false}] ->
+                    self() ! recv,
+                    {noreply, State};
+                [{active, NewActive}] ->
+                    ok = inet:setopts(ServerSocket, [{active, NewActive}]),
+                    {noreply, State#?STATE{ active = NewActive }}
+            end;
         {error, Reason} ->
             {stop, {error, Reason}, State}
     end;
+% Active == true / once / N
 handle_info({udp, ServerSocket, Address, Port, Packet},
         #?STATE{ socket = ServerSocket,
                  cb_mod = CbMod,
-                 active = Active = true } = State) ->
-    ok = CbMod:recv_data({Address, Port, Packet}),
-    {noreply, State};
-handle_info({udp, ServerSocket, Address, Port, Packet, Active},
-        #?STATE{ socket = ServerSocket,
-                 cb_mod = CbMod,
-                 active = once } = State) ->
-    ok = CbMod:recv_data({Address, Port, Packet, Active}),
-    % TODO: we could actually write a callback behaviour for
-    %       udp, where active is passed to the mod,
-    %       allowing the CBMod to decice whether to apply
-    %       backpressure.
-    % So let the CB mod reply with ACTIVE
-    ok = inet:setopts(ServerSocket, [{active, once}]),
-    {noreply, State};
+                 active = Active } = State) ->
+    case CbMod:recv_data({Address, Port, Packet, Active}) of
+        ok ->
+            {noreply, State};
+        [{active, NewActive}] ->
+            ok = inet:setopts(ServerSocket, [{active, NewActive}]),
+            {noreply, State#?STATE{ active = NewActive }}
+    end;
+% UDP passive
 handle_info({udp_passive, ServerSocket},
         #?STATE{ socket = ServerSocket,
                  cb_mod = CbMod,
                  active = Active } = State) ->
     NewActive = CbMod:event({{udp_passive, ServerSocket}, Active}),
     ok = inet:setopts(ServerSocket, NewActive),
-    {noreply, State};
+    {noreply, State#?STATE{ active = NewActive }};
 handle_info(Info, State) ->
     io:format("Unhandled Info ~p ~n", [Info]),
     {noreply, State}.

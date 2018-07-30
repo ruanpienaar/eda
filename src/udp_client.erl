@@ -2,6 +2,7 @@
 
 -export([
     start_link/2,
+    stop/2,
     send/4
 ]).
 
@@ -25,6 +26,10 @@
 start_link(Port, Opts) ->
     IpAddress = proplists:get_value(ip, Opts),
     gen_server:start_link({local, name(IpAddress, Port)}, ?MODULE, {IpAddress, Port, Opts}, []).
+
+stop(Address, Port) ->
+    IpAddress = proplists:get_value(ip, [Address]),
+    gen_server:stop(name(IpAddress, Port)).
 
 %% @doc call the started gen_server with name ?MODULE++address++port
 %% @end
