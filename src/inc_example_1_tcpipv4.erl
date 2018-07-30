@@ -1,4 +1,4 @@
--module(example_1_tcpipv4).
+-module(inc_example_1_tcpipv4).
 -behaviour(eda_incomming_proto_cb).
 -export([
     recv_data/3

@@ -1,6 +1,6 @@
 {application, eda,
  [
-  {description, ""},
+  {description, "Erlang Data Adaptor"},
   {vsn, "1"},
   {registered, []},
   {applications, [
@@ -9,7 +9,7 @@
                   crypto,
                   public_key,
                   ssl,
-                  hackney,
+                  gun,
                   ranch
                  ]},
   {mod, { eda_app, []}},

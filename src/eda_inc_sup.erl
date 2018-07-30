@@ -6,7 +6,7 @@
 
 -export([init/1]).
 
--include("eda.hrl").
+-include_lib("eda/include/eda.hrl").
 
 %% ===================================================================
 %% API functions
@@ -28,21 +28,25 @@ init([]) ->
     ChildSpecs =
         lists:foldl(fun({Ref, ProtoOpts}, A) ->
             case proplists:get_value(type, ProtoOpts) of
-                tcpipv4 ->
+                ?TCPV4 ->
                     NumAcceptrs = proplists:get_value(num_acceptors, ProtoOpts),
                     Port = proplists:get_value(port, ProtoOpts),
                     ListenerSpec = ranch:child_spec(
                         Ref, NumAcceptrs, ranch_tcp,
-                        [{port, Port}], eda_inc_tcpipv4_protocol, ProtoOpts
+                        [{port, Port}], eda_inc_tcpipv4, ProtoOpts
                     ),
                     [ListenerSpec|A];
+                ?UDPV4 ->
+                    OpenOpts = proplists:get_value(open_opts, ProtoOpts),
+                    {ip, Address} = proplists:lookup(ip, OpenOpts),
+                    Port = proplists:get_value(port, ProtoOpts),
+                    [eda:child(eda_inc_udpv4:id(Address, Port), eda_inc_udpv4, worker, [ProtoOpts])|A];
                 X ->
                     io:format("incomming ~p unsupported protocol option.~n", [X]),
                     A
             end
         end, [], IncProtos),
 
-    % {ok, { {one_for_one, 5, 10}, Children} }.
     SupFlags = #{
         strategy => one_for_one, % optional
         intensity => 50,         % optional

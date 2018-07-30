@@ -1,7 +1,7 @@
--module(eda_tests).
+-module(eda_inc_sup_tests).
 -include_lib("eunit/include/eunit.hrl").
 
-eda_unit_test_() ->
+eda_inc_sup_unit_test_() ->
     {setup,
      % Setup Fixture
      fun() ->
@@ -14,12 +14,12 @@ eda_unit_test_() ->
      % List of tests
      [
        % Example test
-       {"eda:func1/0",
+       {"eda_inc_sup:func1/0",
             ?_assert(unit_testing:try_test_fun(fun func1/0))}
      ]
     }.
 
 func1() ->
     ?assert(
-        is_list(eda:module_info())
+        is_list(eda_inc_sup:module_info())
     ).

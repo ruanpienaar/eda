@@ -6,7 +6,7 @@
 
 -export([init/1]).
 
--include("eda.hrl").
+-include_lib("eda/include/eda.hrl").
 
 %% ===================================================================
 %% API functions
@@ -28,8 +28,8 @@ init([]) ->
     ChildSpecs =
         lists:foldl(fun({_Ref, ProtoOpts}, A) ->
             case proplists:get_value(type, ProtoOpts) of
-                tcpipv4 ->
-                    % [?CHILD(eda_out_tcpipv4_protocol, worker)|A];
+                ?TCPV4 ->
+                    % [child(eda_out_tcpipv4_protocol, worker)|A];
                     % TODO: we need to create it per ID, so that it's unique...
                     A;
                 X ->
@@ -37,8 +37,6 @@ init([]) ->
                     A
             end
         end, [], OutProtos),
-
-    % {ok, { {one_for_one, 5, 10}, Children} }.
     SupFlags = #{
         strategy => one_for_one, % optional
         intensity => 50,         % optional

@@ -1,10 +1,7 @@
--define(CHILD(I, Type),
-    #{
-        id => I,
-        start => {I, start_link, []},
-        restart => permanent,
-        shutdown => 5000,
-        type => worker,
-        modules => [I]
-    }
-).
+
+%% Incoming Proto Types
+-define(TCPV4, tcpv4).
+-define(UDPV4, udpv4).
+
+%% Outgoing Proto Types
+-define(TCPV4_CLIENT, tcpv4_client).

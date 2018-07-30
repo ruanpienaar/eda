@@ -5,14 +5,15 @@
 %% Application callbacks
 -export([start/2, stop/1]).
 
--include("eda.hrl").
-
 %% ===================================================================
 %% Application callbacks
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
-    eda_sup:start_link().
+    {ok, Pid} = eda_sup:start_link(),
+    io:format("All Out : ~p\n", [eda:all_out()]),
+    io:format("All Inc : ~p\n", [eda:all_inc()]),
+    {ok, Pid}.
 
 stop(_State) ->
     ok.

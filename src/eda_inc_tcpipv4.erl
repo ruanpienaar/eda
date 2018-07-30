@@ -1,4 +1,4 @@
--module(eda_inc_tcpipv4_protocol).
+-module(eda_inc_tcpipv4).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -27,8 +27,7 @@ set_active_false(Pid) ->
 
 
 init({Ref, Socket, Transport, Opts}) ->
-    % io:format("Opts : ~p~n", [Opts]),
-    FMod = proplists:get_value(forward_module, Opts),
+    CbMod = proplists:get_value(cb_mod, Opts),
     SocketOpts = proplists:get_value(socket_opts, Opts),
     ok = ranch:accept_ack(Ref),
     SocketOpts = proplists:get_value(socket_opts, Opts),
@@ -40,7 +39,7 @@ init({Ref, Socket, Transport, Opts}) ->
         transport => Transport,
         socket_opts => SocketOpts,
         socket_active_state => {active, SocketActiveState},
-        forward_module => FMod
+        cb_mod => CbMod
     }, 60000).
 
 handle_call(_Request, _From, State) ->
@@ -57,8 +56,8 @@ handle_info({tcp, Socket, Data},
            transport := Transport,
            socket_active_state := {active, once},
            socket_opts := SocketOpts,
-           forward_module := FMod } = State) ->
-    ok = FMod:recv_data(self(), SocketOpts, Data),
+           cb_mod := CbMod } = State) ->
+    ok = CbMod:recv_data(self(), SocketOpts, Data),
     ok = Transport:setopts(Socket, [{active, once}]),
     {noreply, State};
 handle_info({tcp_closed, Socket}, #{ socket := Socket } = State) ->

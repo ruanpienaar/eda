@@ -6,7 +6,7 @@
 
 -export([init/1]).
 
--include("eda.hrl").
+-include_lib("eda/include/eda.hrl").
 
 %% ===================================================================
 %% API functions
@@ -22,9 +22,9 @@ start_link() ->
 init([]) ->
     ChildSpecs = [
         % First out
-        ?CHILD(eda_out_sup, supervisor),
+        eda:child(eda_out_sup, supervisor),
         % Then in
-        ?CHILD(eda_inc_sup, supervisor)
+        eda:child(eda_inc_sup, supervisor)
     ],
     SupFlags = #{
         strategy => one_for_one, % optional
@@ -32,4 +32,3 @@ init([]) ->
         period => 1              % optional
     },
     {ok, {SupFlags, ChildSpecs}}.
-

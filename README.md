@@ -5,10 +5,17 @@ Erlang Data Adaptor.
 Setup data forwarding from a list of supported protocols.
 Data is forwarded to a configured module.
 
-The list of available protocols are:
+The list of available incomming protocols are:
 
 * TCP/IP V4
+* TCP/IP v6 ( TODO )
+* UDP over v4
+* UDP over v6 ( TODO )
+* SSL over v4 ( TODO )
+* SSL over v6 ( TODO )
 * HTTP
+* HTTPS (TODO)
+* WebSocket
 * More comming
 
 ## Code Example
