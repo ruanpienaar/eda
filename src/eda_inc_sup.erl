@@ -41,8 +41,7 @@ init([]) ->
                     {ip, Address} = proplists:lookup(ip, OpenOpts),
                     Port = proplists:get_value(port, ProtoOpts),
                     [eda:child(eda_inc_udpv4:id(Address, Port), eda_inc_udpv4, worker, [ProtoOpts])|A];
-                SSLV4 ->
-
+                ?SSLV4 ->
                     NumAcceptrs = proplists:get_value(num_acceptors, ProtoOpts),
                     Port = proplists:get_value(port, ProtoOpts),
                     ListenerSpec = ranch:child_spec(
@@ -50,7 +49,6 @@ init([]) ->
                         [{port, Port}], eda_inc_sslv4, ProtoOpts
                     ),
                     [ListenerSpec|A];
-
                 X ->
                     io:format("incomming ~p unsupported protocol option.~n", [X]),
                     A
