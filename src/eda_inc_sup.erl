@@ -46,7 +46,11 @@ init([]) ->
                     Port = proplists:get_value(port, ProtoOpts),
                     ListenerSpec = ranch:child_spec(
                         Ref, NumAcceptrs, ranch_ssl,
-                        [{port, Port}], eda_inc_sslv4, ProtoOpts
+                        [
+                            {port, Port},
+                            {certfile, "/Users/ruanpienaar/code/eda/priv/rootCA.crt"},
+                            {keyfile, "/Users/ruanpienaar/code/eda/priv/rootCA.pem"}
+                        ], eda_inc_sslv4, ProtoOpts
                     ),
                     [ListenerSpec|A];
                 X ->
