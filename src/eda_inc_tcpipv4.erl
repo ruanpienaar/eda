@@ -25,7 +25,6 @@ set_active_true(Pid) ->
 set_active_false(Pid) ->
     Pid ! {setopts, [{active, false}]}.
 
-
 init({Ref, Socket, Transport, Opts}) ->
     CbMod = proplists:get_value(cb_mod, Opts),
     SocketOpts = proplists:get_value(socket_opts, Opts),
@@ -45,6 +44,9 @@ init({Ref, Socket, Transport, Opts}) ->
 handle_call(_Request, _From, State) ->
     {reply, {error, unknown_call}, State}.
 
+handle_cast({reply, Data}, #{ socket := Socket } = State) ->
+    ok = gen_tcp:send(Socket, Data),
+    {noreply, State};
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
