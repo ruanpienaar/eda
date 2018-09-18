@@ -53,6 +53,9 @@ handle_cast(_Msg, State) ->
 % TODO
 % - Use active, true, but only with back pressure enabled.
 
+handle_info({send, Data}, #{ socket := Socket } = State) ->
+    ok = gen_tcp:send(Socket, Data),
+    {noreply, State};
 handle_info({tcp, Socket, Data},
         #{ socket := Socket,
            transport := Transport,
