@@ -1,4 +1,4 @@
--module(eda_inc_tcpipv4).
+-module(eda_inc_tcpv4).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -62,11 +62,15 @@ handle_info({tcp, Socket, Data},
            socket_active_state := {active, once},
            socket_opts := SocketOpts,
            cb_mod := CbMod } = State) ->
+    io:format("[~p] received data on Socket ~p\n", [?MODULE, Socket]),
     ok = CbMod:recv_data(self(), SocketOpts, Data),
     ok = Transport:setopts(Socket, [{active, once}]),
     {noreply, State};
 handle_info({tcp_closed, Socket}, #{ socket := Socket } = State) ->
-    {stop, tcp_closed, State}.
+    {stop, tcp_closed, State};
+handle_info(timeout, State) ->
+    %% TODO: add item to sys.config to specify actions when timeout occurs
+    {noreply, State}.
 
 terminate(_Reason, #{
         socket := Socket,

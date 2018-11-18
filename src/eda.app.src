@@ -8,6 +8,8 @@
                   stdlib,
                   crypto,
                   public_key,
+                  edc,
+                  poolboy,
                   ssl,
                   gun,
                   ranch

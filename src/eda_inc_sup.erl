@@ -33,7 +33,7 @@ init([]) ->
                     Port = proplists:get_value(port, ProtoOpts),
                     ListenerSpec = ranch:child_spec(
                         Ref, NumAcceptrs, ranch_tcp,
-                        [{port, Port}], eda_inc_tcpipv4, ProtoOpts
+                        [{port, Port}], eda_inc_tcpv4, ProtoOpts
                     ),
                     [ListenerSpec|A];
                 ?UDPV4 ->

@@ -1,4 +1,4 @@
--module(out_example_1_http).
+-module(out_example_2_http).
 -export([
     send_data/0
 ]).

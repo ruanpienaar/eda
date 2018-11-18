@@ -13,9 +13,9 @@ The list of available incomming protocols are:
 * UDP over v6 ( TODO )
 * SSL over v4 ( TODO )
 * SSL over v6 ( TODO )
-* HTTP
+* HTTP ( TODO )
 * HTTPS (TODO)
-* WebSocket
+* WebSocket ( TODO )
 * More comming
 
 ## Code Example
@@ -49,3 +49,6 @@ irc, twitter accounts if applicable.
 ## License
 
 A short snippet describing the license (MIT, Apache, etc.)
+
+TODO:
+- move examples to seperate folder

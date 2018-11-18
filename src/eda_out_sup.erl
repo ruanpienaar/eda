@@ -26,15 +26,14 @@ init([]) ->
 
     {ok, OutProtos} = application:get_env(eda, outgoing_data_protocols),
     ChildSpecs =
-        lists:foldl(fun({_Ref, ProtoOpts}, A) ->
-            case proplists:get_value(type, ProtoOpts) of
-                ?TCPV4 ->
-                    % [child(eda_out_tcpipv4_protocol, worker)|A];
-                    % TODO: we need to create it per ID, so that it's unique...
-                    A;
+        lists:foldl(fun({_Ref, Client}, Acc) ->
+            {Name, ClientOpts} = Client,
+            case proplists:get_value(type, ClientOpts) of
+                Type = ?TCPV4 ->
+                    [ edc_sup:tcpv4_child_spec(Type, ClientOpts) | Acc ];
                 X ->
                     io:format("outgoing ~p unsupported protocol option.~n", [X]),
-                    A
+                    Acc
             end
         end, [], OutProtos),
     SupFlags = #{
