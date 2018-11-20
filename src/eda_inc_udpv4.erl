@@ -18,7 +18,7 @@
 %% API
 
 start_link(Args) ->
-    %io:format("Args ~p\n\n\n", [Args]),
+    %eda_log:log(debug, "Args ~p\n\n\n", [Args]),
     OpenOpts = proplists:get_value(open_opts, Args),
     {ip, Address} = proplists:lookup(ip, OpenOpts),
     {port, Port} = proplists:lookup(port,Args),
@@ -35,7 +35,7 @@ init([Args]) ->
     {cb_mod, CbMod} = proplists:lookup(cb_mod, Args),
     {recv_len, RcvLen} = proplists:lookup(recv_len, Args),
     {ok, ServerSocket} = gen_udp:open(Port, OpenOpts),
-    io:format("UDP OPEN ServerSocket ~p\n", [ServerSocket]),
+    eda_log:log(debug, "UDP OPEN ServerSocket ~p\n", [ServerSocket]),
     Active =
         case proplists:get_value(active, OpenOpts, false) of
             false ->
@@ -57,11 +57,11 @@ init([Args]) ->
     }}.
 
 handle_call(Request, _From, State) ->
-    io:format("Unhandled Requst ~p ~n", [Request]),
+    eda_log:log(warning, "Unhandled Requst ~p ~n", [Request]),
     {reply, {error, unknown_call}, State}.
 
 handle_cast(Msg, State) ->
-    io:format("Unhandled Msg ~p ~n", [Msg]),
+    eda_log:log(warning, "Unhandled Msg ~p ~n", [Msg]),
     {noreply, State}.
 
 % Active == false
@@ -106,11 +106,11 @@ handle_info({udp_passive, ServerSocket},
     ok = inet:setopts(ServerSocket, NewActive),
     {noreply, State#?STATE{ active = NewActive }};
 handle_info(Info, State) ->
-    io:format("Unhandled Info ~p ~n", [Info]),
+    eda_log:log(warning, "Unhandled Info ~p ~n", [Info]),
     {noreply, State}.
 
 terminate(Reason, _State) ->
-    io:format("Terminate ~p ~p~n", [?MODULE, Reason]),
+    eda_log:log(warning, "Terminate ~p ~p~n", [?MODULE, Reason]),
     ok.
 
 code_change(_OldVsn, State, _Extra) ->

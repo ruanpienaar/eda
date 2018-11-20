@@ -27,12 +27,12 @@ init([]) ->
     {ok, OutProtos} = application:get_env(eda, outgoing_data_protocols),
     ChildSpecs =
         lists:foldl(fun({_Ref, Client}, Acc) ->
-            {Name, ClientOpts} = Client,
+            {_Name, ClientOpts} = Client,
             case proplists:get_value(type, ClientOpts) of
                 Type = ?TCPV4 ->
                     [ edc_sup:tcpv4_child_spec(Type, ClientOpts) | Acc ];
                 X ->
-                    io:format("outgoing ~p unsupported protocol option.~n", [X]),
+                    eda_log:log(warning, "outgoing ~p unsupported protocol option.~n", [X]),
                     Acc
             end
         end, [], OutProtos),

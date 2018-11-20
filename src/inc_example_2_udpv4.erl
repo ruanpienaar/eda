@@ -11,23 +11,23 @@
 % TODO: finish specs
 
 % -spec recv_data(tuple()) -> ok | list().
-recv_data(Data={Address, Port, Packet, Active = true}) ->
-    io:format("CB MOD ~p\n~p\n", [?MODULE, Data]),
+recv_data(Data={_Address, _Port, _Packet, _Active = true}) ->
+    eda_log:log(debug, "CB MOD ~p\n~p\n", [?MODULE, Data]),
     % here we can select what active to return.
     % [{active, Active}];
     ok;
-recv_data(Data={Address, Port, Packet, Active}) ->
-    io:format("CB MOD ~p\n~p\n", [?MODULE, Data]),
+recv_data(Data={_Address, _Port, _Packet, Active}) ->
+    eda_log:log(debug, "CB MOD ~p\n~p\n", [?MODULE, Data]),
     % here we can select what active to return.
     [{active, Active}];
 recv_data(Data) ->
-    io:format("recv_data : ~p~n", [Data]).
+    eda_log:log(debug, "recv_data : ~p~n", [Data]).
 
 % -spec event(events()) -> list().
 event({{udp_passive, _Socket}, Active}) ->
-    io:format("received udp_passive when active : ~p~n", [Active]),
+    eda_log:log(debug, "received udp_passive when active : ~p~n", [Active]),
     % here we can select what active to return.
     [{active, Active}];
 event(Event) ->
-    io:format("Unknown Event : ~p~n", [Event]),
+    eda_log:log(debug, "Unknown Event : ~p~n", [Event]),
     [].

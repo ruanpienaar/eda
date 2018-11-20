@@ -11,8 +11,8 @@
 
 start(_StartType, _StartArgs) ->
     {ok, Pid} = eda_sup:start_link(),
-    io:format("All Out : ~p\n", [eda:all_out()]),
-    io:format("All Inc : ~p\n", [eda:all_inc()]),
+    eda_log:log(debug, "All Out : ~p\n", [eda:all_out()]),
+    eda_log:log(debug, "All Inc : ~p\n", [eda:all_inc()]),
     {ok, Pid}.
 
 stop(_State) ->

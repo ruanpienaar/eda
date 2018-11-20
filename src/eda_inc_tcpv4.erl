@@ -62,7 +62,7 @@ handle_info({tcp, Socket, Data},
            socket_active_state := {active, once},
            socket_opts := SocketOpts,
            cb_mod := CbMod } = State) ->
-    io:format("[~p] received data on Socket ~p\n", [?MODULE, Socket]),
+    eda_log:log(debug, "[~p] received data on Socket ~p\n", [?MODULE, Socket]),
     ok = CbMod:recv_data(self(), SocketOpts, Data),
     ok = Transport:setopts(Socket, [{active, once}]),
     {noreply, State};

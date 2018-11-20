@@ -4,4 +4,4 @@
 ]).
 
 send_data() ->
-    io:format("send_data ~n", []).
+    eda_log:log(debug, "send_data ~n", []).

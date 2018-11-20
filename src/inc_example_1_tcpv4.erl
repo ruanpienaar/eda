@@ -6,4 +6,4 @@
 
 recv_data(Pid, SocketOpts, Data) ->
     % timer:sleep(1000),
-    io:format("recv_data Pid: ~p, SocketOpts: ~p. Data: ~p~n", [Pid, SocketOpts, Data]).
+    eda_log:log(debug, "recv_data Pid: ~p, SocketOpts: ~p. Data: ~p~n", [Pid, SocketOpts, Data]).

@@ -63,7 +63,7 @@ handle_info({tcp, Socket, Data},
 handle_info({tcp_closed, Socket}, #{ socket := Socket } = State) ->
     {stop, tcp_closed, State};
 handle_info(Info, State) ->
-    io:format("Unknwon Info ~p\n", [Info]),
+    eda_log:log(warning, "Unknwon Info ~p\n", [Info]),
     {noreply, State}.
 
 terminate(_Reason, #{

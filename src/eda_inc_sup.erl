@@ -54,7 +54,7 @@ init([]) ->
                     ),
                     [ListenerSpec|A];
                 X ->
-                    io:format("incomming ~p unsupported protocol option.~n", [X]),
+                    eda_log:log(warning, "incomming ~p unsupported protocol option.~n", [X]),
                     A
             end
         end, [], IncProtos),
