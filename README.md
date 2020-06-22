@@ -16,21 +16,27 @@ The list of available incomming protocols are:
 * HTTP ( TODO )
 * HTTPS (TODO)
 * WebSocket ( TODO )
+* MQTT
 * More comming
 
 ## Code Example
 
-Show what the library does as concisely as possible,
-developers should be able to figure out **how** your project solves their problem by looking at the code example.
-Make sure the API you are showing off is obvious, and that your code is short and concise.
 
 ## Motivation
 
-A short description of the motivation behind the creation and maintenance of the project. This should explain **why** the project exists.
+Simplify receiving and sending data.
 
 ## Installation
 
-Provide code examples and explanations of how to get the project.
+git clone
+make 
+
+if more debugging is needed, then set env, or change sys.config
+```Erlang
+application:set_env(interlay, log_debug, false).
+application:set_env(edc, log_debug, false).
+application:set_env(eda, log_debug, false).
+```
 
 ## API Reference
 
