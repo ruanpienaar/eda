@@ -1,7 +1,16 @@
 -module(eda_inc_sslv4).
 
+-include_lib("kernel/include/logger.hrl").
+
 -behaviour(gen_server).
--export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
+-export([
+    init/1,
+    handle_call/3,
+    handle_cast/2,
+    handle_info/2,
+    terminate/2,
+    code_change/3
+]).
 
 -behaviour(ranch_protocol).
 -export([
@@ -24,7 +33,6 @@ set_active_true(Pid) ->
 
 set_active_false(Pid) ->
     Pid ! {setopts, [{active, false}]}.
-
 
 init({Ref, Socket, Transport, Opts}) ->
     CbMod = proplists:get_value(cb_mod, Opts),
@@ -63,7 +71,7 @@ handle_info({tcp, Socket, Data},
 handle_info({tcp_closed, Socket}, #{ socket := Socket } = State) ->
     {stop, tcp_closed, State};
 handle_info(Info, State) ->
-    eda_log:log(warning, "Unknwon Info ~p\n", [Info]),
+    ?LOG_WARNING("Unknwon Info ~p\n", [Info]),
     {noreply, State}.
 
 terminate(_Reason, #{

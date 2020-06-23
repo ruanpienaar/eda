@@ -8,11 +8,10 @@
                   stdlib,
                   crypto,
                   public_key,
-                  edc,
-                  poolboy,
                   ssl,
-                  gun,
-                  ranch
+                  ranch,
+                  erlang_prometheus,
+                  edc
                  ]},
   {mod, { eda_app, []}},
   {env, []}

@@ -1,5 +1,7 @@
 -module(eda_inc_udpv4).
 
+-include_lib("kernel/include/logger.hrl").
+
 -export([
     start_link/1,
     id/2
@@ -18,7 +20,7 @@
 %% API
 
 start_link(Args) ->
-    %eda_log:log(debug, "Args ~p\n\n\n", [Args]),
+    %% ?LOG_DEBUG("Args ~p\n\n\n", [Args]),
     OpenOpts = proplists:get_value(open_opts, Args),
     {ip, Address} = proplists:lookup(ip, OpenOpts),
     {port, Port} = proplists:lookup(port,Args),
@@ -35,7 +37,7 @@ init([Args]) ->
     {cb_mod, CbMod} = proplists:lookup(cb_mod, Args),
     {recv_len, RcvLen} = proplists:lookup(recv_len, Args),
     {ok, ServerSocket} = gen_udp:open(Port, OpenOpts),
-    eda_log:log(debug, "UDP OPEN ServerSocket ~p\n", [ServerSocket]),
+    ?LOG_DEBUG("UDP OPEN ServerSocket ~p\n", [ServerSocket]),
     Active =
         case proplists:get_value(active, OpenOpts, false) of
             false ->
@@ -57,11 +59,11 @@ init([Args]) ->
     }}.
 
 handle_call(Request, _From, State) ->
-    eda_log:log(warning, "Unhandled Requst ~p ~n", [Request]),
+    ?LOG_WARNING("Unhandled Requst ~p ~n", [Request]),
     {reply, {error, unknown_call}, State}.
 
 handle_cast(Msg, State) ->
-    eda_log:log(warning, "Unhandled Msg ~p ~n", [Msg]),
+    ?LOG_WARNING("Unhandled Msg ~p ~n", [Msg]),
     {noreply, State}.
 
 % Active == false
@@ -106,11 +108,11 @@ handle_info({udp_passive, ServerSocket},
     ok = inet:setopts(ServerSocket, NewActive),
     {noreply, State#?STATE{ active = NewActive }};
 handle_info(Info, State) ->
-    eda_log:log(warning, "Unhandled Info ~p ~n", [Info]),
+    ?LOG_WARNING("Unhandled Info ~p ~n", [Info]),
     {noreply, State}.
 
 terminate(Reason, _State) ->
-    eda_log:log(warning, "Terminate ~p ~p~n", [?MODULE, Reason]),
+    ?LOG_WARNING("Terminate ~p ~p~n", [?MODULE, Reason]),
     ok.
 
 code_change(_OldVsn, State, _Extra) ->
@@ -119,6 +121,7 @@ code_change(_OldVsn, State, _Extra) ->
 %% ------------------------------------------------------------------
 %% Internal
 
+%% TODO: atom creation is a bit bad / undesired.
 name(Address, Port) ->
     AddressString = case Address of
         A when is_tuple(Address) ->

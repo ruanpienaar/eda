@@ -1,5 +1,7 @@
 -module(eda_out_sup).
 
+-include_lib("kernel/include/logger.hrl").
+
 -behaviour(supervisor).
 
 -export([start_link/0]).
@@ -32,7 +34,7 @@ init([]) ->
                 Type = ?TCPV4 ->
                     [ edc_sup:tcpv4_child_spec(Type, ClientOpts) | Acc ];
                 X ->
-                    eda_log:log(warning, "outgoing ~p unsupported protocol option.~n", [X]),
+                    ?LOG_WARNING("outgoing ~p unsupported protocol option.~n", [X]),
                     Acc
             end
         end, [], OutProtos),
@@ -42,4 +44,3 @@ init([]) ->
         period => 5              % optional
     },
     {ok, {SupFlags, ChildSpecs}}.
-

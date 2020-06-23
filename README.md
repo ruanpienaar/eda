@@ -2,8 +2,7 @@
 
 Erlang Data Adaptor.
 
-Setup data forwarding from a list of supported protocols.
-Data is forwarded to a configured module.
+This application handles incoming data, and uses EDC ( Erlang data client/connector ) for connecting and sending data.
 
 The list of available incomming protocols are:
 

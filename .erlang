@@ -1,0 +1,1 @@
+{ok,[crypto,asn1,public_key,ssl,ranch,cowlib,cowboy,prometheus,inets,accept,prometheus_httpd,prometheus_cowboy,erlang_prometheus,edc,eda]} = application:ensure_all_started(eda).

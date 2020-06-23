@@ -1,7 +1,16 @@
 -module(eda_inc_tcpv4).
 
+-include_lib("kernel/include/logger.hrl").
+
 -behaviour(gen_server).
--export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
+-export([
+    init/1,
+    handle_call/3,
+    handle_cast/2,
+    handle_info/2,
+    terminate/2,
+    code_change/3
+]).
 
 -behaviour(ranch_protocol).
 -export([
@@ -62,7 +71,8 @@ handle_info({tcp, Socket, Data},
            socket_active_state := {active, once},
            socket_opts := SocketOpts,
            cb_mod := CbMod } = State) ->
-    eda_log:log(debug, "[~p] received data on Socket ~p\n", [?MODULE, Socket]),
+    _ = eda_metrics:tcp_data_inc(),
+    ?LOG_DEBUG("[~p] received data on Socket ~p\n", [?MODULE, Socket]),
     ok = CbMod:recv_data(self(), SocketOpts, Data),
     ok = Transport:setopts(Socket, [{active, once}]),
     {noreply, State};

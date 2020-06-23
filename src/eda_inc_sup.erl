@@ -1,5 +1,7 @@
 -module(eda_inc_sup).
 
+-include_lib("kernel/include/logger.hrl").
+
 -behaviour(supervisor).
 
 -export([start_link/0]).
@@ -25,6 +27,8 @@ init([]) ->
     % - build screening per item ( check required fields present )
 
     {ok, IncProtos} = application:get_env(eda, incomming_data_protocols),
+
+    % TODO: move all these bits of code to edc
     ChildSpecs =
         lists:foldl(fun({Ref, ProtoOpts}, A) ->
             case proplists:get_value(type, ProtoOpts) of
@@ -48,13 +52,14 @@ init([]) ->
                         Ref, NumAcceptrs, ranch_ssl,
                         [
                             {port, Port},
+                            %% TODO: priv dir
                             {certfile, "/Users/ruanpienaar/code/eda/priv/rootCA.crt"},
                             {keyfile, "/Users/ruanpienaar/code/eda/priv/rootCA.pem"}
                         ], eda_inc_sslv4, ProtoOpts
                     ),
                     [ListenerSpec|A];
                 X ->
-                    eda_log:log(warning, "incomming ~p unsupported protocol option.~n", [X]),
+                    ?LOG_WARNING("incomming ~p unsupported protocol option.~n", [X]),
                     A
             end
         end, [], IncProtos),
@@ -65,4 +70,3 @@ init([]) ->
         period => 5              % optional
     },
     {ok, {SupFlags, ChildSpecs}}.
-
