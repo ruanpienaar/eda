@@ -10,4 +10,5 @@
 
 recv_data(Pid, SocketOpts, Data) ->
     % timer:sleep(1000),
+    eda_metrics:tcp_data_inc(),
     ?LOG_INFO("recv_data Pid: ~p, SocketOpts: ~p. Data: ~p~n", [Pid, SocketOpts, Data]).

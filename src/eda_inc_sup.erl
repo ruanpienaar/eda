@@ -23,8 +23,13 @@ start_link() ->
 
 init([]) ->
 
+    ok = eda_metrics:init(),
+
     % TODO
     % - build screening per item ( check required fields present )
+
+    %% TODO: why is this doing exactly what edc is doing?
+    %% should EDA does this, OR EDC do the below?
 
     {ok, IncProtos} = application:get_env(eda, incomming_data_protocols),
 

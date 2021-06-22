@@ -21,7 +21,7 @@ start_link() ->
 
 init([]) ->
 
-    ok = eda_metrics:init(),
+    % ok = eda_metrics:init(),
 
     ChildSpecs = [
         % First out

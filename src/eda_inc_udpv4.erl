@@ -21,8 +21,8 @@
 
 start_link(Args) ->
     %% ?LOG_DEBUG("Args ~p\n\n\n", [Args]),
-    OpenOpts = proplists:get_value(open_opts, Args),
-    {ip, Address} = proplists:lookup(ip, OpenOpts),
+    SocketOpts = proplists:get_value(socket_opts, Args),
+    {ip, Address} = proplists:lookup(ip, SocketOpts),
     {port, Port} = proplists:lookup(port,Args),
     gen_server:start_link({local, name(Address, Port)}, ?MODULE, [Args], []).
 
@@ -32,14 +32,14 @@ id(Address, Port) ->
 %% ------------------------------------------------------------------
 
 init([Args]) ->
-    {port,Port} = proplists:lookup(port,Args),
-    {open_opts,OpenOpts} = proplists:lookup(open_opts,Args),
+    {port, Port} = proplists:lookup(port, Args),
+    {socket_opts, SocketOpts} = proplists:lookup(socket_opts, Args),
     {cb_mod, CbMod} = proplists:lookup(cb_mod, Args),
     {recv_len, RcvLen} = proplists:lookup(recv_len, Args),
-    {ok, ServerSocket} = gen_udp:open(Port, OpenOpts),
+    {ok, ServerSocket} = gen_udp:open(Port, SocketOpts),
     ?LOG_DEBUG("UDP OPEN ServerSocket ~p\n", [ServerSocket]),
     Active =
-        case proplists:get_value(active, OpenOpts, false) of
+        case proplists:get_value(active, SocketOpts, false) of
             false ->
                 % TODO: change recv messages to timeout, or tightloop?
                 self() ! recv,
