@@ -41,12 +41,16 @@ init([]) ->
                     NumAcceptrs = proplists:get_value(num_acceptors, ProtoOpts),
                     Port = proplists:get_value(port, ProtoOpts),
                     ListenerSpec = ranch:child_spec(
-                        Ref, NumAcceptrs, ranch_tcp,
-                        [{port, Port}], eda_inc_tcpv4, ProtoOpts
+                        Ref,
+                        NumAcceptrs,
+                        ranch_tcp,
+                        [{port, Port}],
+                        eda_inc_tcpv4,
+                        ProtoOpts
                     ),
                     [ListenerSpec|A];
                 ?UDPV4 ->
-                    OpenOpts = proplists:get_value(open_opts, ProtoOpts),
+                    OpenOpts = proplists:get_value(socket_opts, ProtoOpts),
                     {ip, Address} = proplists:lookup(ip, OpenOpts),
                     Port = proplists:get_value(port, ProtoOpts),
                     [eda:child(eda_inc_udpv4:id(Address, Port), eda_inc_udpv4, worker, [ProtoOpts])|A];

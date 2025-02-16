@@ -35,6 +35,7 @@ set_active_false(Pid) ->
     Pid ! {setopts, [{active, false}]}.
 
 init({Ref, Socket, Transport, Opts}) ->
+    _ = erlang:process_flag(trap_exit, true),
     CbMod = proplists:get_value(cb_mod, Opts),
     SocketOpts = proplists:get_value(socket_opts, Opts),
     ok = ranch:accept_ack(Ref),

@@ -1,4 +1,4 @@
--module(tcp_client).
+-module(tcp_client_no_wait_reply).
 
 -export([client/2]).
 
@@ -6,6 +6,7 @@
 client(PortNo,Message) ->
     {ok,Sock} = gen_tcp:connect("localhost",PortNo,[{active,false},{packet,2}]),
     ok = gen_tcp:send(Sock,Message),
-    A = gen_tcp:recv(Sock,0),
+    % A = gen_tcp:recv(Sock,0),
     ok = gen_tcp:close(Sock),
-    A.
+    % A.
+    ok.
